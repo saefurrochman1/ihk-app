@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">📋 Data IHK</h2>
+
+<!-- Tambah Data -->
+<form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menambahkan data baru?')" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label for="tanggal" class="form-label">Tanggal</label>
+        <input type="date" class="form-control" name="tanggal" required>
+    </div>
+    <div class="col-md-4">
+        <label for="ihk" class="form-label">IHK</label>
+        <input type="number" step="0.01" class="form-control" name="ihk" required>
+    </div>
+    <div class="col-md-4 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-plus-circle"></i> Tambah Data
+        </button>
+    </div>
+</form>
+
+<!-- Ringkasan Data -->
+{% if data|length > 0 %}
+<div class="alert alert-info">
+  <strong>Total Data:</strong> {{ data|length }} |
+  <strong>Rata-rata IHK:</strong> {{ data | map(attribute='IHK') | sum / (data|length) | round(2) }}
+</div>
+{% endif %}
+
+<!-- Tabel Data -->
+<div class="table-responsive">
+<table id="ihkTable" class="table table-bordered table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Tanggal</th>
+            <th>IHK</th>
+            <th class="text-center">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% if edit_id == row["index"] %}
+                <!-- Mode Edit -->
+                <form method="POST" action="{{ url_for('data_page.update', index=row['index']) }}" 
+                      onsubmit="return confirm('Yakin ingin menyimpan perubahan data ini?')">
+                    <td><input type="date" name="tanggal" class="form-control" 
+                               value="{{ row['Tanggal'].strftime('%Y-%m-%d') }}"></td>
+                    <td><input type="number" step="0.01" name="ihk" class="form-control" 
+                               value="{{ row['IHK'] }}"></td>
+                    <td class="text-center">
+                        <button type="submit" class="btn btn-sm btn-success me-1">
+                            <i class="bi bi-save"></i> Simpan
+                        </button>
+                        <a href="{{ url_for('data_page.index') }}" class="btn btn-sm btn-secondary">
+                            <i class="bi bi-x-circle"></i> Batal
+                        </a>
+                    </td>
+                </form>
+            {% else %}
+                <!-- Mode Read-Only -->
+                <td>{{ row["Tanggal"].strftime("%d-%m-%Y") }}</td>
+                <td>{{ row["IHK"] }}</td>
+                <td class="text-center">
+                    <!-- Tombol Edit -->
+                    <a href="{{ url_for('data_page.index', edit=row['index']) }}" 
+                       class="btn btn-sm btn-warning me-1" title="Edit">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+
+                    <!-- Tombol Hapus -->
+                    <form method="POST" action="{{ url_for('data_page.delete', index=row['index']) }}" 
+                          style="display:inline;" 
+                          onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                        <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<!-- DataTables Scripts -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+      $('#ihkTable').DataTable({
+          "pageLength": 10,
+          "lengthMenu": [5, 10, 25, 50, 100],
+          "ordering": true,
+          "language": {
+              "search": "Cari:",
+              "lengthMenu": "Tampilkan _MENU_ data per halaman",
+              "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+              "paginate": {
+                  "previous": "Sebelumnya",
+                  "next": "Berikutnya"
+              }
+          }
+      });
+  });
+</script>
+{% endblock %}

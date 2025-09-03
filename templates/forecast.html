@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">📈 Forecast IHK</h2>
+
+{% if forecast %}
+<ul class="list-group">
+    {% for bulan, nilai in forecast.items() %}
+    <li class="list-group-item d-flex justify-content-between">
+        <span>{{ bulan }}</span>
+        <span>{{ nilai }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Data belum cukup untuk membuat forecast.</p>
+{% endif %}
+{% endblock %}

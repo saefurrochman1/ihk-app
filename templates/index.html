@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Data Section -->
+<section id="data" class="mb-5">
+    <h2 class="mb-4">📋 Data IHK</h2>
+    <!-- Form Tambah Data -->
+    <form method="POST" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="tanggal" class="form-label">Tanggal</label>
+            <input type="date" class="form-control" name="tanggal" required>
+        </div>
+        <div class="col-md-4">
+            <label for="ihk" class="form-label">IHK</label>
+            <input type="text" class="form-control" name="ihk" required>
+        </div>
+        <div class="col-md-4 align-self-end">
+            <button type="submit" class="btn btn-primary w-100">Tambah Data</button>
+        </div>
+    </form>
+
+    <!-- Tabel Data -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>IHK</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row["Tanggal"].strftime("%d-%m-%Y") }}</td>
+                <td>{{ row["IHK"] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<!-- Forecast Section -->
+<section id="forecast" class="mb-5">
+    <h2 class="mb-4">📈 Forecast 12 Bulan ke Depan</h2>
+    {% if forecast %}
+    <ul>
+        {% for bulan, nilai in forecast.items() %}
+        <li>{{ bulan }} : {{ nilai }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Data belum cukup untuk membuat forecast.</p>
+    {% endif %}
+</section>
+
+<!-- Grafik Section -->
+<section id="grafik" class="mb-5">
+    <h2 class="mb-4">📊 Grafik IHK & Forecast</h2>
+    <div id="ihk-chart" style="height:500px;"></div>
+</section>
+
+<!-- Load Plotly -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    const chartData = {{ chart_data|safe }};
+
+    const trace1 = {
+        x: chartData.historical.x,
+        y: chartData.historical.y,
+        mode: 'lines+markers',
+        name: 'Historis',
+        line: { color: 'blue' }
+    };
+
+    const trace2 = {
+        x: chartData.forecast.x,
+        y: chartData.forecast.y,
+        mode: 'lines+markers',
+        name: 'Forecast',
+        line: { color: 'red', dash: 'dot' }
+    };
+
+    const layout = {
+        title: "Grafik IHK Historis & Forecast",
+        xaxis: { title: "Periode" },
+        yaxis: { title: "IHK" }
+    };
+
+    Plotly.newPlot("ihk-chart", [trace1, trace2], layout);
+</script>
+{% endblock %}

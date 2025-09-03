@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">📊 Grafik IHK & Forecast</h2>
+<div id="ihk-chart" style="height:500px;"></div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    const chartData = {{ chart_data|safe }};
+
+    const trace1 = {
+        x: chartData.historical.x,
+        y: chartData.historical.y,
+        mode: 'lines+markers',
+        name: 'Historis',
+        line: { color: 'blue' }
+    };
+
+    const trace2 = {
+        x: chartData.forecast.x,
+        y: chartData.forecast.y,
+        mode: 'lines+markers',
+        name: 'Forecast',
+        line: { color: 'red', dash: 'dot' }
+    };
+
+    const layout = {
+        title: "Grafik IHK Historis & Forecast",
+        xaxis: { title: "Periode" },
+        yaxis: { title: "IHK" }
+    };
+
+    Plotly.newPlot("ihk-chart", [trace1, trace2], layout);
+</script>
+{% endblock %}
